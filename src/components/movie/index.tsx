@@ -15,7 +15,8 @@ export interface IMovie {
     rate: number,
     id: string,
     baseAdditionalInfoUrl: string,
-    deleteMovie: Function
+    deleteMovie: Function,
+    configuration?: any
 }
 export default function Movie(props: IMovie) {
     const showLink = isValidUrl(props.baseAdditionalInfoUrl);
@@ -30,7 +31,7 @@ export default function Movie(props: IMovie) {
                 {props.year}
             </Card.Text>
             {showLink && <Card.Link href={`${props.baseAdditionalInfoUrl}/${props.id}`}>Go To</Card.Link>}
-            <Rank stars={props.rate} />
+            <Rank stars={props.rate} starsColor={props.configuration.starsColor} />
             <Button onClick={() => props.deleteMovie(props.id)} variant="danger"><Trash2 /></Button>
         </Card.Body>
     </Card>

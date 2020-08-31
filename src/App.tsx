@@ -11,7 +11,8 @@ import Button from 'react-bootstrap/Button';
 import axios from "axios";
 import { getAllByTestId } from '@testing-library/react';
 import Filter from './components/filter';
-
+import { StarColors } from "./components/rank"
+import Configuration from './components/configuration';
 // jsx element
 
 
@@ -23,10 +24,13 @@ const images: Array<any> = [
 
 // create function element
 function App() {
+
+
     const initialMovies: Array<any> = data;
     const initialDeletedMovies: Array<any> = []
     const [movies, setMovies] = useState(initialMovies)
     const [deletedMovies, setDeletedMovies] = useState(initialDeletedMovies)
+    const [starsColor, setStarsColor] = useState(StarColors.secondary);
     // const [getter, setter] = useState(Initial State)
 
     function clearMovies() {
@@ -44,6 +48,7 @@ function App() {
     function addMovie() {
         setMovies([...movies, data[0]]) //example to show state - data[0] = from FORM
     }
+
 
     function deleteMovie(moovieId: string): void {
         const moviesCopy = [...movies]
@@ -65,7 +70,11 @@ function App() {
         setMovies(filteredMovies)
     }
     return <div className="container">
-
+        <Configuration setColorInGlobalState={setStarsColor} color={starsColor} />
+        {/* <div>
+            configuration
+            <input onChange={({ target }) => setStarsColor((target as any).value)} />
+        </div> */}
         <CustomHeader style={{ color: "green" }} text={"Movies"} />
         <div className="row">
             <Filter filterOperation={filterOperation} />
@@ -75,7 +84,7 @@ function App() {
             <Button onClick={addMovie} > Add movie</Button>
             <Button onClick={revert} > revert</Button>
         </div>
-        <MovieList noDataMessage="No Data for you firend" movies={moviesAdapter(movies)} />
+        <MovieList noDataMessage="No Data for you firend" movies={moviesAdapter(movies)} configuration={{ starsColor }} />
     </div>
 
     function moviesAdapter(movies: Array<any>): Array<IMovie> {
