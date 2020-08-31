@@ -4,7 +4,6 @@ import './App.css';
 import ImageComponent, { IImageProps } from './components/image';
 import CustomHeader from './components/header';
 
-import { data } from "./data"
 import MovieList from './components/movie-list';
 import { IMovie } from './components/movie';
 import Button from 'react-bootstrap/Button';
@@ -24,14 +23,22 @@ const images: Array<any> = [
 
 // create function element
 function App() {
-
-
     const initialMovies: Array<any> = data;
     const initialDeletedMovies: Array<any> = []
     const [movies, setMovies] = useState(initialMovies)
     const [deletedMovies, setDeletedMovies] = useState(initialDeletedMovies)
     const [starsColor, setStarsColor] = useState(StarColors.secondary);
     // const [getter, setter] = useState(Initial State)
+
+
+    useEffect(() => {
+        //this code will run: cases:
+        // on initial render
+        // on any chnage in the array params
+
+
+
+    }, [])
 
     function clearMovies() {
         setMovies([])
@@ -45,6 +52,7 @@ function App() {
         setMovies([...movies, getLastRevertMovie])
         setDeletedMovies([...deletedMoviesCopy])
     }
+
     function addMovie() {
         setMovies([...movies, data[0]]) //example to show state - data[0] = from FORM
     }
