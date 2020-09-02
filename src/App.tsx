@@ -4,14 +4,14 @@ import './App.css';
 import ImageComponent, { IImageProps } from './components/image';
 import CustomHeader from './components/header';
 
-import { data } from "./data"
 import MovieList from './components/movie-list';
 import { IMovie } from './components/movie';
 import Button from 'react-bootstrap/Button';
 import axios from "axios";
 import { getAllByTestId } from '@testing-library/react';
 import Filter from './components/filter';
-
+import { StarColors } from "./components/rank"
+import Configuration from './components/configuration';
 // jsx element
 
 
@@ -23,11 +23,27 @@ const images: Array<any> = [
 
 // create function element
 function App() {
-    const initialMovies: Array<any> = data;
+    const initialMovies: Array<any> = []
     const initialDeletedMovies: Array<any> = []
     const [movies, setMovies] = useState(initialMovies)
     const [deletedMovies, setDeletedMovies] = useState(initialDeletedMovies)
+    const [starsColor, setStarsColor] = useState(StarColors.secondary);
     // const [getter, setter] = useState(Initial State)
+
+
+
+    async function getMoviesApi() {
+        const moviesUrl = "http://www.omdbapi.com/?s=scream&apikey=4f7462e2&page=10"
+        const { data } = await axios.get(moviesUrl);
+        setMovies(data.Search)
+    }
+
+    useEffect(() => {
+        //this code will run: cases:
+        // on initial render
+        // on any chnage in the array params
+        getMoviesApi()
+    }, [starsColor])
 
     function clearMovies() {
         setMovies([])
@@ -41,9 +57,11 @@ function App() {
         setMovies([...movies, getLastRevertMovie])
         setDeletedMovies([...deletedMoviesCopy])
     }
+
     function addMovie() {
-        setMovies([...movies, data[0]]) //example to show state - data[0] = from FORM
+        setMovies([...movies]) //example to show state - data[0] = from FORM
     }
+
 
     function deleteMovie(moovieId: string): void {
         const moviesCopy = [...movies]
@@ -60,22 +78,27 @@ function App() {
     }
 
     function filterOperation(value: string) {
-        if (!value) return setMovies(data);
-        const filteredMovies = data.filter(movie => movie.Title.toLowerCase().includes(value))
+        if (!value) return setMovies(movies);
+        const filteredMovies = movies.filter(movie => movie.Title.toLowerCase().includes(value))
         setMovies(filteredMovies)
     }
     return <div className="container">
-
+        <Configuration setColorInGlobalState={setStarsColor} color={starsColor} />
+        {/* <div>
+            configuration
+            <input onChange={({ target }) => setStarsColor((target as any).value)} />
+        </div> */}
         <CustomHeader style={{ color: "green" }} text={"Movies"} />
         <div className="row">
             <Filter filterOperation={filterOperation} />
+            <Button onClick={getMoviesApi} > clear filter</Button>
         </div>
         <div className="row">
             <Button onClick={clearMovies} > clear Movies</Button>
             <Button onClick={addMovie} > Add movie</Button>
             <Button onClick={revert} > revert</Button>
         </div>
-        <MovieList noDataMessage="No Data for you firend" movies={moviesAdapter(movies)} />
+        <MovieList noDataMessage="No Data for you firend" movies={moviesAdapter(movies)} configuration={{ starsColor }} />
     </div>
 
     function moviesAdapter(movies: Array<any>): Array<IMovie> {
