@@ -27,19 +27,9 @@ function App() {
             <NavBarApp />
             <Switch>
                 <RoutesConfiguration routes={Routes} />
-                {/* <Route path="/home" component={MoviesPage} />
-                    <Route path="/configuration" component={ConfigurationPage} />
-                    <Route path="/about" component={AboutPage} />
-                    <Route path="/ugly">
-                        <div> The Ugly way </div>
-                    </Route> */}
             </Switch>
         </div>
     </Router>
-}
-
-function RoutesConfiguration(props: any) {
-    return props.routes.map((route: any) => <Route {...route} />)
 }
 
 interface IRoute {
@@ -47,6 +37,11 @@ interface IRoute {
     path: string,
     name: string
 }
+function RoutesConfiguration(props: { routes: Array<IRoute> }) {
+    return <>{props.routes.map((route: IRoute) => <Route {...route} />)} </>
+}
+
+
 
 
 
