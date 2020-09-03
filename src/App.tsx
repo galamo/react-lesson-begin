@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
-
 import ImageComponent, { IImageProps } from './components/image';
 import CustomHeader from './components/header';
 
@@ -9,7 +8,6 @@ import { IMovie } from './components/movie';
 import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
 import Spinner from 'react-bootstrap/Spinner';
-
 
 import axios from "axios";
 import { getAllByTestId } from '@testing-library/react';
@@ -132,9 +130,6 @@ function App() {
         </div>
         {isLoading ? < Spinner animation="border" role="status"> </Spinner> : <MovieList noDataMessage="No Data for you firend" movies={moviesAdapter(movies)} configuration={{ starsColor }} />
         }
-
-
-    
     </div >
 
     function moviesAdapter(movies: Array<any>): Array<IMovie> {
@@ -145,12 +140,6 @@ function App() {
     }
 
 }
-
-
-
-
-
-
 
 
 interface IProps {
