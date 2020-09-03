@@ -45,9 +45,10 @@ function App() {
         } catch ({ message }) {
             setAlertConfig({ show: true, message })
             setMovies([])
-            // alert(message)
         }
     }
+
+
 
     useEffect(() => {
         //this code will run: cases:
