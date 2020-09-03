@@ -8,6 +8,7 @@ import MovieList from './components/movie-list';
 import { IMovie } from './components/movie';
 import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
+import Spinner from 'react-bootstrap/Spinner';
 
 
 import axios from "axios";
@@ -26,30 +27,43 @@ const images: Array<any> = [
 
 // create function element
 function App() {
-    const initialMovies: Array<any> = []
+    const initialMovies: Array<any> | null = []
     const initialDeletedMovies: Array<any> = []
     const [movies, setMovies] = useState(initialMovies)
     const [deletedMovies, setDeletedMovies] = useState(initialDeletedMovies)
     const [starsColor, setStarsColor] = useState(StarColors.secondary);
     const [alertConfig, setAlertConfig] = useState({ show: false, message: "" })
     // const [getter, setter] = useState(Initial State)
-
+    const [isLoading, setLoader] = useState(true)
 
 
     async function getMoviesApi(searchValue: string = "") {
+        setLoader(true)
         try {
             const moviesUrl = `http://www.omdbapi.com/?s=${searchValue}&apikey=4f7462e2&page=10`
             const { data } = await axios.get(moviesUrl);
             if (data.Response === "False") throw Error("No Data From Api")
             setMovies(data.Search)
+
+
         } catch ({ message }) {
             setAlertConfig({ show: true, message })
+            //@ts-ignore
             setMovies([])
+            clearErrorMessage()
+        } finally {
+            setTimeout(() => {
+                setLoader(false)
+            }, 2000);
         }
     }
 
 
-
+    function clearErrorMessage() {
+        setTimeout(() => {
+            setAlertConfig({ show: false, message: "" })
+        }, 2000);
+    }
     useEffect(() => {
         //this code will run: cases:
         // on initial render
@@ -105,10 +119,6 @@ function App() {
             </Alert>}
         </div>
         <Configuration setColorInGlobalState={setStarsColor} color={starsColor} />
-        {/* <div>
-            configuration
-            <input onChange={({ target }) => setStarsColor((target as any).value)} />
-        </div> */}
         <Filter filterOperation={filterOperationApi} />
         <CustomHeader style={{ color: "green" }} text={"Movies"} />
         <div className="row">
@@ -120,8 +130,12 @@ function App() {
             <Button onClick={addMovie} > Add movie</Button>
             <Button onClick={revert} > revert</Button>
         </div>
-        <MovieList noDataMessage="No Data for you firend" movies={moviesAdapter(movies)} configuration={{ starsColor }} />
-    </div>
+        {isLoading ? < Spinner animation="border" role="status"> </Spinner> : <MovieList noDataMessage="No Data for you firend" movies={moviesAdapter(movies)} configuration={{ starsColor }} />
+        }
+
+
+    
+    </div >
 
     function moviesAdapter(movies: Array<any>): Array<IMovie> {
         return movies.map((movie: any) => {
