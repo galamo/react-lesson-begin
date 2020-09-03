@@ -7,6 +7,9 @@ import CustomHeader from './components/header';
 import MovieList from './components/movie-list';
 import { IMovie } from './components/movie';
 import Button from 'react-bootstrap/Button';
+import Alert from 'react-bootstrap/Alert';
+
+
 import axios from "axios";
 import { getAllByTestId } from '@testing-library/react';
 import Filter from './components/filter';
@@ -28,21 +31,29 @@ function App() {
     const [movies, setMovies] = useState(initialMovies)
     const [deletedMovies, setDeletedMovies] = useState(initialDeletedMovies)
     const [starsColor, setStarsColor] = useState(StarColors.secondary);
+    const [alertConfig, setAlertConfig] = useState({ show: false, message: "" })
     // const [getter, setter] = useState(Initial State)
 
 
 
-    async function getMoviesApi() {
-        const moviesUrl = "http://www.omdbapi.com/?s=scream&apikey=4f7462e2&page=10"
-        const { data } = await axios.get(moviesUrl);
-        setMovies(data.Search)
+    async function getMoviesApi(searchValue: string = "") {
+        try {
+            const moviesUrl = `http://www.omdbapi.com/?s=${searchValue}&apikey=4f7462e2&page=10`
+            const { data } = await axios.get(moviesUrl);
+            if (data.Response === "False") throw Error("No Data From Api")
+            setMovies(data.Search)
+        } catch ({ message }) {
+            setAlertConfig({ show: true, message })
+            setMovies([])
+            // alert(message)
+        }
     }
 
     useEffect(() => {
         //this code will run: cases:
         // on initial render
         // on any chnage in the array params
-        getMoviesApi()
+        getMoviesApi("scream")
     }, [starsColor])
 
     function clearMovies() {
@@ -76,22 +87,32 @@ function App() {
 
         }
     }
-
+    function filterOperationApi(value: string) {
+        getMoviesApi(value)
+    }
     function filterOperation(value: string) {
         if (!value) return setMovies(movies);
         const filteredMovies = movies.filter(movie => movie.Title.toLowerCase().includes(value))
         setMovies(filteredMovies)
     }
+
+    const { show, message } = alertConfig;
     return <div className="container">
+        <div>
+            {show && <Alert key={1} variant={"danger"}>
+                {message}
+            </Alert>}
+        </div>
         <Configuration setColorInGlobalState={setStarsColor} color={starsColor} />
         {/* <div>
             configuration
             <input onChange={({ target }) => setStarsColor((target as any).value)} />
         </div> */}
+        <Filter filterOperation={filterOperationApi} />
         <CustomHeader style={{ color: "green" }} text={"Movies"} />
         <div className="row">
             <Filter filterOperation={filterOperation} />
-            <Button onClick={getMoviesApi} > clear filter</Button>
+            <Button onClick={() => setMovies([])} > clear filter</Button>
         </div>
         <div className="row">
             <Button onClick={clearMovies} > clear Movies</Button>
