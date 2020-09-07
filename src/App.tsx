@@ -58,16 +58,24 @@ function RoutesConfiguration(props: { routes: Array<IRoute> }) {
 function NavBarApp() {
 
     const [userDetails, setUserDetails] = useState(null)
+    const [flag, setFlag] = useState(null)
 
-    async function getUserApi() {
-        const { data } = await axios.get("https://randomuser.me/api/?results=1")
-        const user = data.results[0]
-        setUserDetails(user)
+    async function getUserDetailsApi() {
+        try {
+            const { data } = await axios.get("https://randomuser.me/api/?results=1")
+            const user = data.results[0]
+            setUserDetails(user)
+            const res = await axios.get(`https://restcountries.eu/rest/v2/name/${user.location.country}`)
+            const country = res.data[0];
+            setFlag(country.flag);
+        } catch{
+            // alert no details
+        } finally {
+            // cancel loader
+        }
     }
-
-
     useEffect(() => {
-        getUserApi()
+        getUserDetailsApi()
     }, [])
 
     // if (!userDetails) return null
@@ -84,11 +92,16 @@ function NavBarApp() {
         </Navbar.Collapse>
 
         {userDetails ? <UserDetails user={userDetails} /> : < Spinner animation="border" role="status"> </Spinner>}
+        {flag ? <Flagush f={flag} /> : < Spinner animation="border" role="status"> </Spinner>}
     </Navbar>)
 }
 
 function UserDetails(props: any) {
     return <div> {props?.user?.name?.last} </div>
+}
+
+function Flagush(props: any) {
+    return <img src={props.f} height="50" width="50" />
 }
 
 export default App;
