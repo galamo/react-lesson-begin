@@ -5,3 +5,8 @@
 - send to countries api
 - get flag
 - present in image next to the user
+
+
+# Class Task 2:
+- Add Go back button to the Movie page
+- Fill the Movie page data

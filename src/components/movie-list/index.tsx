@@ -14,7 +14,7 @@ export default function MovieList(props: IProps) {
     console.log("Component MovieList rendered")
     const { movies, noDataMessage = "No Data" } = props
     if (!movies.length) return <h1> {noDataMessage}</h1>
-    return <div className={css.bgMovies + " row"}>
+    return <div className={"row"}>
         {movies.map((movie, ind) => { return <Movie key={movie.id + ind} {...movie} configuration={props.configuration} /> })}
     </div>
 }  

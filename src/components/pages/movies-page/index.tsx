@@ -41,9 +41,7 @@ function MoviesPageInternal() {
             setMovies([])
             clearErrorMessage()
         } finally {
-            setTimeout(() => {
-                setLoader(false)
-            }, 2000);
+            setLoader(false)
         }
     }
 
@@ -119,8 +117,12 @@ function MoviesPageInternal() {
             <Button onClick={addMovie} > Add movie</Button>
             <Button onClick={revert} > revert</Button>
         </div>
-        {isLoading ? < Spinner animation="border" role="status"> </Spinner> : <MovieList noDataMessage="No Data for you firend" movies={moviesAdapter(movies)} configuration={{ starsColor }} />
-        }
+        <div>
+            {isLoading ?
+                < Spinner animation="border" role="status"> </Spinner>
+                : <MovieList noDataMessage="No Data for you firend" movies={moviesAdapter(movies)} configuration={{ starsColor }} />
+            }
+        </div>
     </div >
 
     function moviesAdapter(movies: Array<any>): Array<IMovie> {
@@ -133,5 +135,5 @@ function MoviesPageInternal() {
 }
 
 export default function MoviesPage() {
-    return <h1> Movies Page </h1>
+    return <MoviesPageInternal />
 }

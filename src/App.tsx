@@ -8,6 +8,9 @@ import AboutPage from './components/pages/about-page';
 import ConfigurationPage from './components/pages/configuration-page';
 import FavoritePage from './components/pages/favorite-page';
 import SearchResultPage from './components/pages/search-result-page';
+import MoviePage from "./components/pages/movie-page"
+
+
 import axios from "axios"
 import { Link, Switch, Route, BrowserRouter as Router } from "react-router-dom";
 import Spinner from 'react-bootstrap/Spinner';
@@ -15,11 +18,13 @@ import Spinner from 'react-bootstrap/Spinner';
 // jsx element
 
 
-const Routes: Array<IRoute> = [{ component: MoviesPage, path: "/home", name: "Movies" },
-{ component: ConfigurationPage, path: "/configuration", name: "configuration" },
-{ component: AboutPage, path: "/about", name: "about" },
-{ component: FavoritePage, path: "/favorites", name: "favorites" },
-{ component: SearchResultPage, path: "/search-result", name: "Search Result" }
+const Routes: Array<IRoute> = [{ component: MoviesPage, path: "/", name: "Movies", exact: true, isVisible: true },
+{ component: ConfigurationPage, path: "/configuration", name: "configuration", isVisible: true },
+{ component: AboutPage, path: "/about", name: "about", isVisible: true },
+{ component: FavoritePage, path: "/favorites", name: "favorites", isVisible: true },
+{ component: SearchResultPage, path: "/search-result", name: "Search Result", isVisible: true },
+{ component: MoviePage, path: "/movie/:movieId", name: "Movie page? do i need it?", isVisible: false },
+    // { component: () => { return <div> Not Found</div> }, path: "**" }
 ];
 // create function element
 function App() {
@@ -36,23 +41,13 @@ function App() {
 interface IRoute {
     component: any,
     path: string,
-    name: string
+    name?: string,
+    exact?: boolean,
+    isVisible: boolean
 }
 function RoutesConfiguration(props: { routes: Array<IRoute> }) {
     return <>{props.routes.map((route: IRoute) => <Route {...route} />)} </>
 }
-
-
-
-
-// let a = "";
-// function Mistake() {
-//     console.log(user.name.last)
-// }
-
-// Mistake();
-// a = { name: { last: "Roy" } };
-// Mistake();
 
 
 function NavBarApp() {
@@ -65,8 +60,8 @@ function NavBarApp() {
             const { data } = await axios.get("https://randomuser.me/api/?results=1")
             const user = data.results[0]
             setUserDetails(user)
-            const res = await axios.get(`https://restcountries.eu/rest/v2/name/${user.location.country}`)
-            const country = res.data[0];
+            const responseCountries = await axios.get(`https://restcountries.eu/rest/v2/name/${user.location.country}`)
+            const [country] = responseCountries.data
             setFlag(country.flag);
         } catch{
             // alert no details
@@ -84,7 +79,7 @@ function NavBarApp() {
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="mr-auto">
-                {Routes.map((route) => {
+                {Routes.filter((route: IRoute) => route.isVisible).map((route: IRoute) => {
                     const { path, name } = route;
                     return <Link to={path}> {name} </Link>
                 })}
