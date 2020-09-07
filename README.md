@@ -10,3 +10,6 @@
 # Class Task 2:
 - Add Go back button to the Movie page
 - Fill the Movie page data
+
+react router Dom Docs:
+https://reactrouter.com/web/api/Hooks/uselocation
