@@ -3,7 +3,7 @@ import "./index.css";
 import Card from 'react-bootstrap/Card';
 import Button from 'react-bootstrap/Button';
 import { Trash2 } from 'react-bootstrap-icons';
-
+import { Link, useHistory } from "react-router-dom";
 
 import Rank from "../rank";
 
@@ -23,6 +23,7 @@ export default function Movie(props: IMovie) {
     // function deleteHandler() {
     //     props.deleteMovie(props.id)
     // }
+    const history = useHistory();
     return <Card style={{ width: '18rem' }}>
         <Card.Img variant="top" src={props.poster} />
         <Card.Body>
@@ -33,6 +34,8 @@ export default function Movie(props: IMovie) {
             {showLink && <Card.Link href={`${props.baseAdditionalInfoUrl}/${props.id}`}>Go To</Card.Link>}
             <Rank stars={props.rate} starsColor={props.configuration.starsColor} />
             <Button onClick={() => props.deleteMovie(props.id)} variant="danger"><Trash2 /></Button>
+            <Button onClick={() => history.push(`movie/${props.id}`)} variant="danger">Go to</Button>
+            <Link to={`movie/${props.id}`} >Go to </Link>
         </Card.Body>
     </Card>
 }

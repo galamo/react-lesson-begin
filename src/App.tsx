@@ -8,6 +8,7 @@ import AboutPage from './components/pages/about-page';
 import ConfigurationPage from './components/pages/configuration-page';
 import FavoritePage from './components/pages/favorite-page';
 import SearchResultPage from './components/pages/search-result-page';
+import MoviePage from './components/pages/movie-page';
 import axios from "axios"
 import { Link, Switch, Route, BrowserRouter as Router } from "react-router-dom";
 import Spinner from 'react-bootstrap/Spinner';
@@ -15,11 +16,12 @@ import Spinner from 'react-bootstrap/Spinner';
 // jsx element
 
 
-const Routes: Array<IRoute> = [{ component: MoviesPage, path: "/home", name: "Movies" },
-{ component: ConfigurationPage, path: "/configuration", name: "configuration" },
-{ component: AboutPage, path: "/about", name: "about" },
-{ component: FavoritePage, path: "/favorites", name: "favorites" },
-{ component: SearchResultPage, path: "/search-result", name: "Search Result" }
+const Routes: Array<IRoute> = [{ component: MoviesPage, path: "/home", name: "Movies", isVisible: true },
+{ component: ConfigurationPage, path: "/configuration", name: "configuration", isVisible: true },
+{ component: AboutPage, path: "/about", name: "about", isVisible: true },
+{ component: FavoritePage, path: "/favorites", name: "favorites", isVisible: true },
+{ component: SearchResultPage, path: "/search-result", name: "Search Result", isVisible: true },
+{ component: MoviePage, path: "/movie/:movieId", name: "movie", isVisible: false }
 ];
 // create function element
 function App() {
@@ -36,7 +38,8 @@ function App() {
 interface IRoute {
     component: any,
     path: string,
-    name: string
+    name: string,
+    isVisible: boolean
 }
 function RoutesConfiguration(props: { routes: Array<IRoute> }) {
     return <>{props.routes.map((route: IRoute) => <Route {...route} />)} </>
@@ -84,7 +87,7 @@ function NavBarApp() {
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="mr-auto">
-                {Routes.map((route) => {
+                {Routes.filter((route) => route.isVisible).map((route: any) => {
                     const { path, name } = route;
                     return <Link to={path}> {name} </Link>
                 })}
