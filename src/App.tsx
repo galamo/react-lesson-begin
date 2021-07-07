@@ -1,127 +1,102 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import './App.css';
 
-import ImageComponent, { IImageProps } from './components/image';
-import CustomHeader from './components/header';
+import Navbar from 'react-bootstrap/Navbar';
+import Nav from 'react-bootstrap/Nav';
+import MoviesPage from './components/pages/movies-page';
+import AboutPage from './components/pages/about-page';
+import ConfigurationPage from './components/pages/configuration-page';
+import FavoritePage from './components/pages/favorite-page';
+import SearchResultPage from './components/pages/search-result-page';
+import MoviePage from "./components/pages/movie-page"
 
-import { data } from "./data"
-import MovieList from './components/movie-list';
-import { IMovie } from './components/movie';
-import Button from 'react-bootstrap/Button';
-import axios from "axios";
-import { getAllByTestId } from '@testing-library/react';
-import Filter from './components/filter';
+
+import axios from "axios"
+import { Link, Switch, Route, BrowserRouter as Router } from "react-router-dom";
+import Spinner from 'react-bootstrap/Spinner';
 
 // jsx element
 
 
-const images: Array<any> = [
-    { src: "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQGnMVTv0j0SVGZtdxSAh2aulvySNcgLHoqwg&usqp=CAU", height: 200, width: 300 },
-    { src: "https://media.wired.com/photos/5c6750d23e8add2cdb91724f/125:94/w_2393,h_1800,c_limit/shark-551025353.jpg", height: 300, width: 500 },
-    { src: "", height: 200, width: 300 }
-]
-
+const Routes: Array<IRoute> = [{ component: MoviesPage, path: "/", name: "Movies", exact: true, isVisible: true },
+{ component: ConfigurationPage, path: "/configuration", name: "configuration", isVisible: true },
+{ component: AboutPage, path: "/about", name: "about", isVisible: true },
+{ component: FavoritePage, path: "/favorites", name: "favorites", isVisible: true },
+{ component: SearchResultPage, path: "/search-result", name: "Search Result", isVisible: true },
+{ component: MoviePage, path: "/movie/:movieId", name: "Movie page? do i need it?", isVisible: false },
+    // { component: () => { return <div> Not Found</div> }, path: "**" }
+];
 // create function element
 function App() {
-    const initialMovies: Array<any> = data;
-    const initialDeletedMovies: Array<any> = []
-    const [movies, setMovies] = useState(initialMovies)
-    const [deletedMovies, setDeletedMovies] = useState(initialDeletedMovies)
-    // const [getter, setter] = useState(Initial State)
+    return <Router>
+        <div className="container">
+            <NavBarApp />
+            <Switch>
+                <RoutesConfiguration routes={Routes} />
+            </Switch>
+        </div>
+    </Router>
+}
 
-    function clearMovies() {
-        setMovies([])
-    }
+interface IRoute {
+    component: any,
+    path: string,
+    name?: string,
+    exact?: boolean,
+    isVisible: boolean
+}
+function RoutesConfiguration(props: { routes: Array<IRoute> }) {
+    return <>{props.routes.map((route: IRoute) => <Route {...route} />)} </>
+}
 
-    function revert() {
-        const deletedMoviesCopy = [...deletedMovies];
-        if (!deletedMoviesCopy.length) return;
-        const getLastRevertMovie = deletedMoviesCopy[0];
-        deletedMoviesCopy.splice(0, 1)
-        setMovies([...movies, getLastRevertMovie])
-        setDeletedMovies([...deletedMoviesCopy])
-    }
-    function addMovie() {
-        setMovies([...movies, data[0]]) //example to show state - data[0] = from FORM
-    }
 
-    function deleteMovie(moovieId: string): void {
-        const moviesCopy = [...movies]
-        const [index, m] = getMoviesData()
-        moviesCopy.splice(index, 1);
-        setMovies(moviesCopy)
-        setDeletedMovies([...deletedMovies, m])
-        function getMoviesData(): Array<any> {
-            const index = movies.findIndex(m => m.imdbID === moovieId);
-            const movie = movies.find(m => m.imdbID === moovieId);
-            return [index, movie]
+function NavBarApp() {
 
+    const [userDetails, setUserDetails] = useState(null)
+    const [flag, setFlag] = useState(null)
+
+    async function getUserDetailsApi() {
+        try {
+            const { data } = await axios.get("https://randomuser.me/api/?results=1")
+            const user = data.results[0]
+            setUserDetails(user)
+            const responseCountries = await axios.get(`https://restcountries.eu/rest/v2/name/${user.location.country}`)
+            const [country] = responseCountries.data
+            setFlag(country.flag);
+        } catch{
+            // alert no details
+        } finally {
+            // cancel loader
         }
     }
+    useEffect(() => {
+        getUserDetailsApi()
+    }, [])
 
-    function filterOperation(value: string) {
-        if (!value) return setMovies(data);
-        const filteredMovies = data.filter(movie => movie.Title.toLowerCase().includes(value))
-        setMovies(filteredMovies)
-    }
-    return <div className="container">
+    // if (!userDetails) return null
+    return (<Navbar bg="light" expand="lg">
+        <Navbar.Brand href="#home">Movies Api</Navbar.Brand>
+        <Navbar.Toggle aria-controls="basic-navbar-nav" />
+        <Navbar.Collapse id="basic-navbar-nav">
+            <Nav className="mr-auto">
+                {Routes.filter((route: IRoute) => route.isVisible).map((route: IRoute) => {
+                    const { path, name } = route;
+                    return <Link to={path}> {name} </Link>
+                })}
+            </Nav>
+        </Navbar.Collapse>
 
-        <CustomHeader style={{ color: "green" }} text={"Movies"} />
-        <div className="row">
-            <Filter filterOperation={filterOperation} />
-        </div>
-        <div className="row">
-            <Button onClick={clearMovies} > clear Movies</Button>
-            <Button onClick={addMovie} > Add movie</Button>
-            <Button onClick={revert} > revert</Button>
-        </div>
-        <MovieList noDataMessage="No Data for you firend" movies={moviesAdapter(movies)} />
-    </div>
-
-    function moviesAdapter(movies: Array<any>): Array<IMovie> {
-        return movies.map((movie: any) => {
-            const { Title, Year, rank, Poster, imdbID, Type } = movie;
-            return { deleteMovie, baseAdditionalInfoUrl: "http://imdb.com/title", title: Title, year: Year, poster: Poster, type: Type, id: imdbID, rate: rank }
-        })
-    }
-
+        {userDetails ? <UserDetails user={userDetails} /> : < Spinner animation="border" role="status"> </Spinner>}
+        {flag ? <Flagush f={flag} /> : < Spinner animation="border" role="status"> </Spinner>}
+    </Navbar>)
 }
 
-
-
-
-
-
-
-
-interface IProps {
-    images: Array<IImageProps>
-}
-function ImageList(props: IProps): any {
-    const { images } = props
-    return <div>
-        {images.map((imgProps: any) => (<ImageComponent {...imgProps} url={imgProps.src} />))}
-    </div>
-
+function UserDetails(props: any) {
+    return <div> {props?.user?.name?.last} </div>
 }
 
-
-function Details() {
-    return <span> Details component </span>
+function Flagush(props: any) {
+    return <img src={props.f} height="50" width="50" />
 }
-
-
-
-
-// return <React.Fragment>
-// <h1> aaa</h1>
-// <h1> aaa</h1>
-// </React.Fragment>
-
-
-//also works
-// function App2() {
-//     return header
-// }
 
 export default App;
